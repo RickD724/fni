@@ -272,6 +272,15 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
 
     if (nextProducts) setProducts(nextProducts);
 
+    // Load packages from localStorage
+    const savedPackages = window.localStorage.getItem("fi_packages_v1");
+    if (savedPackages) {
+      try {
+        const parsed = JSON.parse(savedPackages) as Package[];
+        if (Array.isArray(parsed) && parsed.length) setPackages(parsed);
+      } catch {}
+    }
+
     if (urlSelections) {
       const decodedSel = decompressAndDecode<string[]>(urlSelections);
       if (decodedSel && Array.isArray(decodedSel)) {
@@ -286,6 +295,13 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
     if (!isAdmin) return;
     window.localStorage.setItem("fi_products_v1", JSON.stringify(products));
   }, [products, isAdmin]);
+
+  // Save packages to localStorage when they change
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!isAdmin) return;
+    window.localStorage.setItem("fi_packages_v1", JSON.stringify(packages));
+  }, [packages, isAdmin]);
 
   const customerBaseUrl = useMemo(() => {
     if (typeof window === "undefined") return "";
@@ -642,8 +658,10 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
               </div>
             </div>
 
-            <div className="grid" style={{ marginTop: "var(--spacing-xl)" }}>
-              {products.map((p, idx) => (
+            {viewMode === 'products' ? (
+              <>
+                <div className="grid" style={{ marginTop: "var(--spacing-xl)" }}>
+                  {products.map((p, idx) => (
                 <div key={p.id} className="adminCard">
                   <div className="adminCardHead">
                     <div className="name">{p.title}</div>
@@ -695,6 +713,190 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
             <div style={{ marginTop: "var(--spacing-xl)" }}>
               <button className="btn primary" onClick={addProduct}>Add Product</button>
             </div>
+          </>
+        ) : (
+          <>
+            {/* PACKAGES ADMIN */}
+            <div className="packagesAdminGrid" style={{ marginTop: "var(--spacing-xl)" }}>
+              {packages.map((pkg, idx) => {
+                const packagePrice = calculatePackagePrice(pkg);
+                const originalPrice = pkg.productIds.reduce((sum, id) => {
+                  const product = products.find(p => p.id === id);
+                  return sum + (product?.price || 0);
+                }, 0);
+                
+                return (
+                  <div key={pkg.id} className="packageAdminCard">
+                    <div className="packageAdminHeader" style={{ background: `linear-gradient(135deg, ${pkg.color}20 0%, ${pkg.color}40 100%)` }}>
+                      <input 
+                        className="packageAdminName"
+                        value={pkg.name}
+                        onChange={(e) => {
+                          const updated = [...packages];
+                          updated[idx] = { ...pkg, name: e.target.value };
+                          setPackages(updated);
+                        }}
+                        placeholder="Package Name"
+                      />
+                      <button 
+                        className="btn danger" 
+                        style={{ padding: "var(--spacing-sm) var(--spacing-md)" }}
+                        onClick={() => {
+                          if (window.confirm(`Delete ${pkg.name}?`)) {
+                            setPackages(packages.filter((_, i) => i !== idx));
+                            showToast(`${pkg.name} deleted`);
+                          }
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+
+                    <div className="packageAdminBody">
+                      <div className="field">
+                        <label>Icon (emoji)</label>
+                        <input 
+                          value={pkg.icon}
+                          onChange={(e) => {
+                            const updated = [...packages];
+                            updated[idx] = { ...pkg, icon: e.target.value };
+                            setPackages(updated);
+                          }}
+                          placeholder="🎁"
+                        />
+                      </div>
+
+                      <div className="field">
+                        <label>Description</label>
+                        <textarea 
+                          value={pkg.description}
+                          onChange={(e) => {
+                            const updated = [...packages];
+                            updated[idx] = { ...pkg, description: e.target.value };
+                            setPackages(updated);
+                          }}
+                          placeholder="Brief package description"
+                          rows={2}
+                        />
+                      </div>
+
+                      <div className="field">
+                        <label>Badge Color (hex)</label>
+                        <div style={{ display: "flex", gap: "var(--spacing-sm)", alignItems: "center" }}>
+                          <input 
+                            type="color"
+                            value={pkg.color || "#2563EB"}
+                            onChange={(e) => {
+                              const updated = [...packages];
+                              updated[idx] = { ...pkg, color: e.target.value };
+                              setPackages(updated);
+                            }}
+                            style={{ width: "60px", height: "40px", cursor: "pointer" }}
+                          />
+                          <input 
+                            value={pkg.color || "#2563EB"}
+                            onChange={(e) => {
+                              const updated = [...packages];
+                              updated[idx] = { ...pkg, color: e.target.value };
+                              setPackages(updated);
+                            }}
+                            placeholder="#2563EB"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="field">
+                        <label>Discount % (optional)</label>
+                        <input 
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={pkg.discount || 0}
+                          onChange={(e) => {
+                            const updated = [...packages];
+                            updated[idx] = { ...pkg, discount: parseInt(e.target.value) || 0 };
+                            setPackages(updated);
+                          }}
+                          placeholder="0"
+                        />
+                      </div>
+
+                      <div className="field">
+                        <label>Included Products</label>
+                        <div className="packageProductsSelector">
+                          {products.map(product => {
+                            const isIncluded = pkg.productIds.includes(product.id);
+                            return (
+                              <div 
+                                key={product.id}
+                                className={`packageProductCheckbox ${isIncluded ? 'checked' : ''}`}
+                                onClick={() => {
+                                  const updated = [...packages];
+                                  const newIds = isIncluded 
+                                    ? pkg.productIds.filter(id => id !== product.id)
+                                    : [...pkg.productIds, product.id];
+                                  updated[idx] = { ...pkg, productIds: newIds };
+                                  setPackages(updated);
+                                }}
+                              >
+                                <input 
+                                  type="checkbox" 
+                                  checked={isIncluded}
+                                  onChange={() => {}}
+                                  style={{ marginRight: "8px" }}
+                                />
+                                <span>{product.icon} {product.title}</span>
+                                <span style={{ marginLeft: "auto", fontWeight: 600, color: "var(--gray-600)" }}>
+                                  {money(product.price)}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      <div className="packageAdminPricing">
+                        <div style={{ fontSize: "13px", color: "var(--gray-600)", marginBottom: "var(--spacing-xs)" }}>
+                          Original: {money(originalPrice)}
+                          {pkg.discount > 0 && ` - ${pkg.discount}% = ${money(packagePrice)}`}
+                        </div>
+                        <div style={{ fontSize: "24px", fontWeight: 800, color: "var(--primary)" }}>
+                          Final Price: {money(packagePrice)}
+                        </div>
+                        {pkg.discount > 0 && (
+                          <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--success)" }}>
+                            Saves ${originalPrice - packagePrice}!
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ marginTop: "var(--spacing-xl)" }}>
+              <button 
+                className="btn primary" 
+                onClick={() => {
+                  const newPackage: Package = {
+                    id: `package_${Date.now()}`,
+                    name: "New Package",
+                    description: "Package description",
+                    icon: "🎁",
+                    productIds: [],
+                    discount: 0,
+                    color: "#2563EB",
+                  };
+                  setPackages([...packages, newPackage]);
+                  showToast("New package added");
+                }}
+              >
+                Add Package
+              </button>
+            </div>
+          </>
+        )}
 
             <div className="footer">
               <div>
