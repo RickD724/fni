@@ -334,9 +334,9 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
         {!isAdmin ? (
           <>
             <div className="hero">
-              <h1>Protect Your Investment</h1>
+              <h1>Premium Protection Plans for Your Vehicle</h1>
               <p>
-                Choose the protection plans that work best for you. Your selections are saved automatically and can be shared with your advisor.
+                Choose from our comprehensive suite of protection products designed to safeguard your investment. Select the coverage that matches your needs, and share your personalized package with your advisor for seamless processing.
               </p>
             </div>
 
