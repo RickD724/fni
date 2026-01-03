@@ -426,6 +426,22 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
               <p>
                 Choose from our comprehensive suite of protection products designed to safeguard your investment. Select the coverage that matches your needs, and share your personalized package with your advisor for seamless processing.
               </p>
+              
+              {/* Customer View Mode Toggle */}
+              <div className="customerViewToggle">
+                <button 
+                  className={`customerViewBtn ${viewMode === 'packages' ? 'active' : ''}`}
+                  onClick={() => setViewMode('packages')}
+                >
+                  🎁 Package Plans
+                </button>
+                <button 
+                  className={`customerViewBtn ${viewMode === 'products' ? 'active' : ''}`}
+                  onClick={() => setViewMode('products')}
+                >
+                  📦 Individual Products
+                </button>
+              </div>
             </div>
 
             <div className="share">

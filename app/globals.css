@@ -470,9 +470,12 @@ html, body {
   padding: var(--spacing-md) var(--spacing-lg);
   border-radius: var(--radius-md);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   backdrop-filter: blur(10px);
+  overflow-x: auto;
+  white-space: nowrap;
+  cursor: pointer;
 }
 .shareInput::selection {
   background: rgba(255,255,255,0.3);
@@ -485,6 +488,9 @@ html, body {
   background: rgba(255,255,255,0.25);
   border-color: rgba(255,255,255,0.5);
   box-shadow: 0 0 0 4px rgba(255,255,255,0.15);
+}
+.shareInput:hover {
+  background: rgba(255,255,255,0.25);
 }
 
 .shareActions {
@@ -720,15 +726,21 @@ html, body {
   padding: var(--spacing-md) var(--spacing-lg);
   border-radius: var(--radius-md);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   backdrop-filter: blur(10px);
+  overflow-x: auto;
+  white-space: nowrap;
+  cursor: pointer;
 }
 .adminShareInput:focus {
   outline: none;
   background: rgba(255,255,255,0.25);
   border-color: rgba(255,255,255,0.5);
   box-shadow: 0 0 0 4px rgba(255,255,255,0.15);
+}
+.adminShareInput:hover {
+  background: rgba(255,255,255,0.25);
 }
 
 .adminCard { 
@@ -1235,4 +1247,46 @@ textarea {
   font-weight: 700;
   color: var(--success);
   margin-top: var(--spacing-xs);
+}
+
+/* CUSTOMER VIEW TOGGLE */
+.customerViewToggle {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  margin-top: var(--spacing-xl);
+  flex-wrap: wrap;
+}
+.customerViewBtn {
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  border-radius: var(--radius-lg);
+  border: 2px solid rgba(37,99,235,0.2);
+  background: #fff;
+  color: var(--gray-700);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+  min-width: 180px;
+}
+.customerViewBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(37,99,235,0.4);
+}
+.customerViewBtn.active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: var(--shadow-lg);
+}
+.customerViewBtn.active:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+@media (max-width: 640px) {
+  .customerViewBtn {
+    flex: 1;
+    min-width: 140px;
+  }
 }
