@@ -241,7 +241,7 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
     if (!customerBaseUrl) return "";
     const u = new URL(customerBaseUrl);
     u.searchParams.set("products", productsToken);
-    u.searchParams.set("selections", b64uEncode([]));
+    u.searchParams.set("selections", compressAndEncode([]));
     return u.toString();
   }, [customerBaseUrl, productsToken]);
 
