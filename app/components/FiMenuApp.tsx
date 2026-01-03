@@ -615,6 +615,9 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
               <div className="adminTopLeft">
                 <h2>Product Management</h2>
                 <div className="muted">Configure your protection products, pricing, and customer sharing</div>
+                <div style={{ marginTop: '8px', padding: '4px 8px', background: '#f0f0f0', borderRadius: '4px', fontSize: '12px', fontFamily: 'monospace' }}>
+                  Current Mode: {viewMode}
+                </div>
               </div>
               <div className="adminActions">
                 <div className="viewModeToggle">
@@ -666,6 +669,18 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
 
             {viewMode === 'products' ? (
               <>
+                <div style={{ 
+                  padding: '20px', 
+                  background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)', 
+                  color: 'white', 
+                  borderRadius: '12px', 
+                  marginTop: '20px',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  textAlign: 'center'
+                }}>
+                  ✅ PRODUCTS VIEW ACTIVE
+                </div>
                 <div className="grid" style={{ marginTop: "var(--spacing-xl)" }}>
                   {products.map((p, idx) => (
                 <div key={p.id} className="adminCard">
@@ -723,6 +738,18 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
         ) : (
           <>
             {/* PACKAGES ADMIN */}
+            <div style={{ 
+              padding: '20px', 
+              background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', 
+              color: 'white', 
+              borderRadius: '12px', 
+              marginTop: '20px',
+              fontSize: '24px',
+              fontWeight: 'bold',
+              textAlign: 'center'
+            }}>
+              🎁 PACKAGES VIEW ACTIVE
+            </div>
             <div className="packagesAdminGrid" style={{ marginTop: "var(--spacing-xl)" }}>
               {packages.map((pkg, idx) => {
                 const packagePrice = calculatePackagePrice(pkg);
@@ -864,12 +891,12 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
                       <div className="packageAdminPricing">
                         <div style={{ fontSize: "13px", color: "var(--gray-600)", marginBottom: "var(--spacing-xs)" }}>
                           Original: {money(originalPrice)}
-                          {pkg.discount > 0 && ` - ${pkg.discount}% = ${money(packagePrice)}`}
+                          {(pkg.discount ?? 0) > 0 && ` - ${pkg.discount}% = ${money(packagePrice)}`}
                         </div>
                         <div style={{ fontSize: "24px", fontWeight: 800, color: "var(--primary)" }}>
                           Final Price: {money(packagePrice)}
                         </div>
-                        {pkg.discount > 0 && (
+                        {(pkg.discount ?? 0) > 0 && (
                           <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--success)" }}>
                             Saves ${originalPrice - packagePrice}!
                           </div>
