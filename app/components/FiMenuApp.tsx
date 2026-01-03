@@ -1,11 +1,21 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import type { Product } from "./types";
+import type { Product, Package } from "./types";
 
 type Mode = "admin" | "customer";
 
 const DEFAULT_PRODUCTS: Product[] = [
+  {
+    id: "multi_coverage",
+    icon: "🎯",
+    title: "Multi-Coverage Protection",
+    subtitle: "Porsche Protection Plan",
+    description:
+      "Comprehensive protection combining Tire & Wheel, Dent, Windshield, and Key Protection. Complete coverage to preserve your Porsche's performance and appearance.",
+    price: 2995,
+    link: "https://assets-v2.porsche.com/us/-/media/Project/PCOM/North-America/USA/Porsche-Financial-Services/Protection-Plan-PDFs/Porsche-Multi-Coverage-Protection_240214",
+  },
   {
     id: "tire_wheel",
     icon: "🛞",
@@ -88,6 +98,44 @@ const DEFAULT_PRODUCTS: Product[] = [
   },
 ];
 
+const DEFAULT_PACKAGES: Package[] = [
+  {
+    id: "bronze",
+    name: "Bronze Package",
+    description: "Essential protection for peace of mind",
+    icon: "🥉",
+    productIds: ["tire_wheel", "key_protection"],
+    color: "#CD7F32",
+  },
+  {
+    id: "silver",
+    name: "Silver Package",
+    description: "Comprehensive coverage for most drivers",
+    icon: "🥈",
+    productIds: ["tire_wheel", "dent_protection", "key_protection", "windshield"],
+    discount: 5,
+    color: "#C0C0C0",
+  },
+  {
+    id: "gold",
+    name: "Gold Package",
+    description: "Premium protection with appearance coverage",
+    icon: "🥇",
+    productIds: ["multi_coverage", "surface_protection", "lease_end"],
+    discount: 10,
+    color: "#FFD700",
+  },
+  {
+    id: "platinum",
+    name: "Platinum Package",
+    description: "Ultimate coverage - complete peace of mind",
+    icon: "💎",
+    productIds: ["multi_coverage", "term_protection", "surface_protection", "lease_end", "vehicle_service"],
+    discount: 15,
+    color: "#E5E4E2",
+  },
+];
+
 // Compressed URL encoding - much shorter URLs!
 function compressAndEncode(obj: unknown): string {
   const json = JSON.stringify(obj);
@@ -148,6 +196,8 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
   const isAdmin = mode === "admin";
 
   const [products, setProducts] = useState<Product[]>(DEFAULT_PRODUCTS);
+  const [packages, setPackages] = useState<Package[]>(DEFAULT_PACKAGES);
+  const [viewMode, setViewMode] = useState<'products' | 'packages'>('products');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
   const [showMobileSummary, setShowMobileSummary] = useState(false);
@@ -158,6 +208,22 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
     setToast(msg);
     if (toastTimer.current) window.clearTimeout(toastTimer.current);
     toastTimer.current = window.setTimeout(() => setToast(null), 2400);
+  }
+
+  function calculatePackagePrice(pkg: Package): number {
+    const total = pkg.productIds.reduce((sum, id) => {
+      const product = products.find(p => p.id === id);
+      return sum + (product?.price || 0);
+    }, 0);
+    if (pkg.discount) {
+      return Math.round(total * (1 - pkg.discount / 100));
+    }
+    return total;
+  }
+
+  function selectPackage(pkg: Package) {
+    setSelected(new Set(pkg.productIds));
+    showToast(`${pkg.name} selected!`);
   }
 
   const total = useMemo(() => {
@@ -379,37 +445,88 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
 
             <div className="layout">
               <div>
-                <div className="grid">
-                  {products.map((p) => {
-                    const isSelected = selected.has(p.id);
-                    const link = safeUrl(p.link);
-                    return (
-                      <div key={p.id} className={"product " + (isSelected ? "selected" : "")}>
-                        <div className="prodHead">
-                          <div className="icon">{p.icon}</div>
-                          <div className="title">{p.title}</div>
-                          <div className="sub">{p.subtitle}</div>
-                        </div>
-                        <div className="prodBody">
-                          <div className="desc">{p.description}</div>
-                          <div className="priceBox">
-                            <div className="amt">{money(p.price)}</div>
+                {viewMode === 'packages' ? (
+                  <div className="packagesGrid">
+                    {packages.map((pkg) => {
+                      const packagePrice = calculatePackagePrice(pkg);
+                      const savings = pkg.discount ? 
+                        pkg.productIds.reduce((sum, id) => sum + (products.find(p => p.id === id)?.price || 0), 0) - packagePrice : 0;
+                      const isPackageSelected = pkg.productIds.every(id => selected.has(id)) && selected.size === pkg.productIds.length;
+                      
+                      return (
+                        <div key={pkg.id} className={`packageCard ${isPackageSelected ? 'selected' : ''}`}>
+                          <div className="packageHeader" style={{ background: `linear-gradient(135deg, ${pkg.color}20 0%, ${pkg.color}40 100%)` }}>
+                            <div className="packageIcon">{pkg.icon}</div>
+                            <div className="packageName">{pkg.name}</div>
+                            {pkg.discount && <div className="packageDiscount">Save {pkg.discount}%</div>}
                           </div>
-                          <div className="btnRow">
-                            <button className="btn primary" onClick={() => toggle(p.id)}>
-                              {isSelected ? "✓ Added" : "Add to Selection"}
+                          <div className="packageBody">
+                            <div className="packageDesc">{pkg.description}</div>
+                            <div className="packageIncludes">
+                              <div className="packageIncludesTitle">Includes:</div>
+                              {pkg.productIds.map(id => {
+                                const product = products.find(p => p.id === id);
+                                return product ? (
+                                  <div key={id} className="packageIncludeItem">
+                                    <span>{product.icon} {product.title}</span>
+                                    <span className="packageIncludePrice">{money(product.price)}</span>
+                                  </div>
+                                ) : null;
+                              })}
+                            </div>
+                            <div className="packagePricing">
+                              {savings > 0 && (
+                                <div className="packageOriginalPrice">{money(packagePrice + savings)}</div>
+                              )}
+                              <div className="packageFinalPrice">{money(packagePrice)}</div>
+                              {savings > 0 && (
+                                <div className="packageSavings">You save {money(savings)}</div>
+                              )}
+                            </div>
+                            <button 
+                              className={`btn primary ${isPackageSelected ? 'selected' : ''}`}
+                              onClick={() => selectPackage(pkg)}
+                            >
+                              {isPackageSelected ? '✓ Package Selected' : 'Select Package'}
                             </button>
-                            {link ? (
-                              <a className="btn link" href={link} target="_blank" rel="noreferrer">
-                                Learn More
-                              </a>
-                            ) : null}
                           </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="grid">
+                    {products.map((p) => {
+                      const isSelected = selected.has(p.id);
+                      const link = safeUrl(p.link);
+                      return (
+                        <div key={p.id} className={"product " + (isSelected ? "selected" : "")}>
+                          <div className="prodHead">
+                            <div className="icon">{p.icon}</div>
+                            <div className="title">{p.title}</div>
+                            <div className="sub">{p.subtitle}</div>
+                          </div>
+                          <div className="prodBody">
+                            <div className="desc">{p.description}</div>
+                            <div className="priceBox">
+                              <div className="amt">{money(p.price)}</div>
+                            </div>
+                            <div className="btnRow">
+                              <button className="btn primary" onClick={() => toggle(p.id)}>
+                                {isSelected ? "✓ Added" : "Add to Selection"}
+                              </button>
+                              {link ? (
+                                <a className="btn link" href={link} target="_blank" rel="noreferrer">
+                                  Learn More
+                                </a>
+                              ) : null}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="summary">
@@ -468,10 +585,25 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
                 <div className="muted">Configure your protection products, pricing, and customer sharing</div>
               </div>
               <div className="adminActions">
+                <div className="viewModeToggle">
+                  <button 
+                    className={`viewModeBtn ${viewMode === 'products' ? 'active' : ''}`}
+                    onClick={() => setViewMode('products')}
+                  >
+                    📦 Individual Products
+                  </button>
+                  <button 
+                    className={`viewModeBtn ${viewMode === 'packages' ? 'active' : ''}`}
+                    onClick={() => setViewMode('packages')}
+                  >
+                    🎁 Package Plans
+                  </button>
+                </div>
                 <button className="btn danger" onClick={() => {
                   if (window.confirm('Reset all products to defaults? This cannot be undone.')) {
                     localStorage.removeItem("fi_products_v1");
                     setProducts(DEFAULT_PRODUCTS);
+                    setPackages(DEFAULT_PACKAGES);
                     showToast("Reset to defaults");
                   }
                 }}>

@@ -7,3 +7,13 @@ export type Product = {
   price: number;
   link?: string; // optional "Learn more" link
 };
+
+export type Package = {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  productIds: string[];
+  discount?: number; // Optional percentage discount
+  color?: string; // Badge color
+};

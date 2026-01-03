@@ -1061,3 +1061,178 @@ textarea {
   .summary { position: static; }
   .product { break-inside: avoid; }
 }
+
+/* VIEW MODE TOGGLE */
+.viewModeToggle {
+  display: flex;
+  gap: var(--spacing-sm);
+  background: rgba(37,99,235,0.1);
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-md);
+}
+.viewModeBtn {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--gray-700);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+.viewModeBtn:hover {
+  background: rgba(37,99,235,0.1);
+}
+.viewModeBtn.active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+/* PACKAGES GRID */
+.packagesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--spacing-xl);
+  margin-bottom: var(--spacing-2xl);
+}
+@media (max-width: 768px) {
+  .packagesGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* PACKAGE CARD */
+.packageCard {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: #fff;
+  border: 2px solid rgba(37,99,235,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+.packageCard:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-xl);
+  border-color: rgba(37,99,235,0.3);
+}
+.packageCard.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.15), var(--shadow-lg);
+}
+.packageCard.selected::after {
+  content: '✓';
+  position: absolute;
+  top: var(--spacing-md);
+  right: var(--spacing-md);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  color: white;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 18px;
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+}
+
+.packageHeader {
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  text-align: center;
+  position: relative;
+}
+.packageIcon {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md);
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+.packageName {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--gray-900);
+  margin-bottom: var(--spacing-sm);
+}
+.packageDiscount {
+  display: inline-block;
+  background: linear-gradient(135deg, #10B981 0%, #34D399 100%);
+  color: #fff;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border-radius: var(--radius-xl);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(16,185,129,0.3);
+}
+
+.packageBody {
+  padding: var(--spacing-xl);
+}
+.packageDesc {
+  font-size: 15px;
+  color: var(--gray-600);
+  margin-bottom: var(--spacing-xl);
+  line-height: 1.6;
+}
+
+.packageIncludes {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, #EFF6FF 0%, #FAFAFA 100%);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(37,99,235,0.1);
+}
+.packageIncludesTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--spacing-md);
+}
+.packageIncludeItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) 0;
+  font-size: 14px;
+  color: var(--gray-700);
+}
+.packageIncludeItem:not(:last-child) {
+  border-bottom: 1px solid rgba(37,99,235,0.05);
+}
+.packageIncludePrice {
+  font-weight: 600;
+  color: var(--gray-500);
+}
+
+.packagePricing {
+  text-align: center;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-lg) 0;
+  border-top: 2px solid rgba(37,99,235,0.1);
+  border-bottom: 2px solid rgba(37,99,235,0.1);
+}
+.packageOriginalPrice {
+  font-size: 18px;
+  color: var(--gray-400);
+  text-decoration: line-through;
+  margin-bottom: var(--spacing-xs);
+}
+.packageFinalPrice {
+  font-size: 36px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+.packageSavings {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--success);
+  margin-top: var(--spacing-xs);
+}
