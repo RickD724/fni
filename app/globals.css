@@ -2,8 +2,8 @@
   --primary: #2563EB;
   --primary-light: #3B82F6;
   --primary-dark: #1E40AF;
-  --accent: #0EA5E9;
-  --accent-light: #38BDF8;
+  --accent: #38BDF8;
+  --accent-light: #7DD3FC;
   --success: #10B981;
   --success-light: #34D399;
   --danger: #EF4444;
@@ -14,6 +14,8 @@
   --blue-light: #60A5FA;
   --cyan: #06B6D4;
   --cyan-light: #22D3EE;
+  --sky: #0EA5E9;
+  --sky-light: #38BDF8;
 
   --gray-50: #FAFAFA;
   --gray-100: #F4F4F5;
@@ -100,7 +102,7 @@ html, body {
   width: 44px; 
   height: 44px; 
   border-radius: var(--radius-md); 
-  background: linear-gradient(135deg, var(--primary) 0%, var(--blue) 50%, var(--accent) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   display: grid; 
   place-items: center; 
   color: #fff; 
@@ -139,7 +141,7 @@ html, body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--blue) 33%, var(--accent) 66%, var(--cyan) 100%);
+  background: linear-gradient(90deg, var(--primary) 0%, var(--sky) 50%, var(--accent) 100%);
   background-size: 200% 100%;
   animation: shimmer 3s linear infinite;
 }
@@ -221,7 +223,7 @@ html, body {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--blue) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   color: white;
   display: grid;
   place-items: center;
@@ -233,7 +235,7 @@ html, body {
 
 .prodHead { 
   padding: var(--spacing-xl);
-  background: linear-gradient(135deg, var(--primary) 0%, var(--blue) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   color: #fff;
   position: relative;
   overflow: hidden;
@@ -344,7 +346,7 @@ html, body {
   transform: scale(0.97);
 }
 .btn.primary { 
-  background: linear-gradient(135deg, var(--primary) 0%, var(--blue) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   color: #fff;
   flex: 1;
   box-shadow: var(--shadow-sm);
@@ -353,7 +355,7 @@ html, body {
 .btn.primary:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
-  background: linear-gradient(135deg, var(--primary-light) 0%, var(--blue-light) 100%);
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--accent-light) 100%);
 }
 .btn.secondary { 
   background: #fff;
@@ -405,7 +407,7 @@ html, body {
   margin-top: var(--spacing-xl);
   padding: var(--spacing-2xl);
   border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, var(--primary) 0%, var(--blue) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   color: #fff;
   box-shadow: var(--shadow-lg);
   position: relative;
@@ -579,7 +581,7 @@ html, body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--blue) 50%, var(--accent) 100%);
+  background: linear-gradient(90deg, var(--primary) 0%, var(--sky) 50%, var(--accent) 100%);
 }
 .summaryTitle { 
   font-weight: 800;
@@ -636,7 +638,7 @@ html, body {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--blue) 50%, var(--accent) 100%);
+  background: linear-gradient(90deg, var(--primary) 0%, var(--sky) 50%, var(--accent) 100%);
 }
 .adminTopLeft h2 { 
   margin: 0;
@@ -661,7 +663,7 @@ html, body {
 .adminShareCard {
   padding: var(--spacing-2xl);
   border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, var(--primary) 0%, var(--blue) 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   color: #fff;
   box-shadow: var(--shadow-lg);
   margin-bottom: var(--spacing-xl);
@@ -865,12 +867,12 @@ textarea {
   right: var(--spacing-lg);
   left: var(--spacing-lg);
   z-index: 90;
-  background: linear-gradient(135deg, var(--primary) 0%, var(--blue) 100%);
+  background: linear-gradient(135deg, #0EA5E9 0%, #06B6D4 100%);
   color: #fff;
   border: none;
   border-radius: var(--radius-xl);
   padding: var(--spacing-lg) var(--spacing-xl);
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 8px 32px rgba(14,165,233,0.4), 0 4px 16px rgba(0,0,0,0.2);
   cursor: pointer;
   transition: all 0.3s ease;
   display: none;
@@ -893,7 +895,7 @@ textarea {
   height: 36px;
   border-radius: 50%;
   background: #fff;
-  color: var(--primary);
+  color: #0EA5E9;
   font-weight: 800;
   font-size: 18px;
   display: grid;

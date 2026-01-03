@@ -325,7 +325,11 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
       <div className="header">
         <div className="header-inner">
           <div className="brand">
-            <div className="badge">🛡️</div>
+            <div className="badge">
+              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ width: '28px', height: '28px' }}>
+                <path d="M12 2L4 6V11C4 16.55 7.84 21.74 13 23C18.16 21.74 22 16.55 22 11V6L12 2Z" fill="white" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
             <div>F&amp;I Product Menu</div>
           </div>
         </div>
@@ -417,9 +421,12 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
                         <span>Total Investment</span>
                         <span style={{ color: "var(--primary)" }}>{money(total)}</span>
                       </div>
-                      <div className="btnRow" style={{ marginTop: "var(--spacing-lg)" }}>
-                        <button className="btn primary" onClick={() => copy(customerMenuUrl)}>Copy Link</button>
-                        <button className="btn secondary" onClick={() => window.print()}>Print</button>
+                      <div className="btnRow" style={{ marginTop: "var(--spacing-lg)", gap: "var(--spacing-sm)" }}>
+                        <button className="btn primary" style={{ flex: 1 }} onClick={() => copy(customerMenuUrl)}>📋 Copy</button>
+                        <button className="btn success" style={{ flex: 1 }} onClick={emailSelections}>✉️ Email</button>
+                      </div>
+                      <div className="btnRow" style={{ marginTop: "var(--spacing-sm)" }}>
+                        <button className="btn secondary" style={{ width: "100%" }} onClick={() => window.print()}>🖨️ Print</button>
                       </div>
                     </>
                   )}
@@ -552,7 +559,7 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
                 <div className="floatingMobileSummaryLabel">Your Selections</div>
                 <div className="floatingMobileSummaryTotal">{money(total)}</div>
               </div>
-              <div className="floatingMobileSummaryIcon">{showMobileSummary ? '✕' : '👁️'}</div>
+              <div className="floatingMobileSummaryIcon">🛒</div>
             </div>
           </button>
 
