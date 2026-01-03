@@ -620,13 +620,19 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
                 <div className="viewModeToggle">
                   <button 
                     className={`viewModeBtn ${viewMode === 'products' ? 'active' : ''}`}
-                    onClick={() => setViewMode('products')}
+                    onClick={() => {
+                      console.log('Switching to products');
+                      setViewMode('products');
+                    }}
                   >
                     📦 Individual Products
                   </button>
                   <button 
                     className={`viewModeBtn ${viewMode === 'packages' ? 'active' : ''}`}
-                    onClick={() => setViewMode('packages')}
+                    onClick={() => {
+                      console.log('Switching to packages');
+                      setViewMode('packages');
+                    }}
                   >
                     🎁 Package Plans
                   </button>
@@ -898,14 +904,14 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
           </>
         )}
 
-            <div className="footer">
-              <div>
-                © {new Date().getFullYear()} <strong>F&I Product Menu</strong> by Ricardo Dias
-              </div>
-              <div style={{ marginTop: "var(--spacing-sm)" }}>
-                <a href="/customer">Customer View</a> • <a href="/admin">Admin Dashboard</a>
-              </div>
+          <div className="footer">
+            <div>
+              © {new Date().getFullYear()} <strong>F&I Product Menu</strong> by Ricardo Dias
             </div>
+            <div style={{ marginTop: "var(--spacing-sm)" }}>
+              <a href="/customer">Customer View</a> • <a href="/admin">Admin Dashboard</a>
+            </div>
+          </div>
           </>
         )}
       </div>
