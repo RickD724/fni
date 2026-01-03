@@ -133,6 +133,7 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
   const [products, setProducts] = useState<Product[]>(DEFAULT_PRODUCTS);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
+  const [showMobileSummary, setShowMobileSummary] = useState(false);
 
   const toastTimer = useRef<number | null>(null);
 
@@ -438,49 +439,33 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
         ) : (
           <>
             <div className="adminTop">
-              <div>
+              <div className="adminTopLeft">
                 <h2>Product Management</h2>
-                <div className="muted">Configure your protection products, pricing, and descriptions</div>
+                <div className="muted">Configure your protection products, pricing, and customer sharing</div>
               </div>
               <div className="adminActions">
-                <button className="btn primary" onClick={() => copy(adminShareUrl)}>Share Customer Link</button>
-                <button className="btn secondary" onClick={exportJson}>Export JSON</button>
-                <label className="btn secondary" style={{ cursor: "pointer" }}>
-                  Import JSON
-                  <input
-                    type="file"
-                    accept="application/json"
-                    style={{ display: "none" }}
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) importJson(f);
-                      e.currentTarget.value = "";
-                    }}
-                  />
-                </label>
-                <button
-                  className="btn danger"
-                  onClick={() => {
+                <button className="btn danger" onClick={() => {
+                  if (window.confirm('Reset all products to defaults? This cannot be undone.')) {
                     localStorage.removeItem("fi_products_v1");
                     setProducts(DEFAULT_PRODUCTS);
                     showToast("Reset to defaults");
-                  }}
-                >
+                  }
+                }}>
                   Reset to Defaults
                 </button>
               </div>
             </div>
 
-            <div className="share" style={{ marginTop: "var(--spacing-lg)" }}>
-              <h3>📤 Customer Link</h3>
-              <p>Share this link with customers to view your product menu</p>
-              <div className="shareRow">
-                <div className="shareInputGroup">
-                  <input className="shareInput" readOnly value={adminShareUrl} onFocus={(e) => e.currentTarget.select()} />
+            <div className="adminShareCard">
+              <div className="adminShareContent">
+                <div className="adminShareLeft">
+                  <h3>📤 Customer Link</h3>
+                  <p>Share this link with customers to view your product menu</p>
                 </div>
-                <div className="shareActions">
-                  <button className="btn shareBtn" onClick={() => copy(adminShareUrl)}>📋 Copy Link</button>
-                  <a className="btn shareBtn success" href="/customer">👁️ Preview</a>
+                <div className="adminShareActions">
+                  <input className="adminShareInput" readOnly value={adminShareUrl} onFocus={(e) => e.currentTarget.select()} />
+                  <button className="btn primary" onClick={() => copy(adminShareUrl)}>📋 Copy Link</button>
+                  <a className="btn success" href="/customer">👁️ Preview</a>
                 </div>
               </div>
             </div>
@@ -552,6 +537,61 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
       </div>
 
       <div className={"toast " + (toast ? "show" : "")}>{toast ?? ""}</div>
+
+      {/* Floating Mobile Summary Button */}
+      {!isAdmin && selected.size > 0 && (
+        <>
+          <button 
+            className="floatingMobileSummary"
+            onClick={() => setShowMobileSummary(!showMobileSummary)}
+            aria-label="View selections"
+          >
+            <div className="floatingMobileSummaryContent">
+              <div className="floatingMobileSummaryBadge">{selected.size}</div>
+              <div className="floatingMobileSummaryText">
+                <div className="floatingMobileSummaryLabel">Your Selections</div>
+                <div className="floatingMobileSummaryTotal">{money(total)}</div>
+              </div>
+              <div className="floatingMobileSummaryIcon">{showMobileSummary ? '✕' : '👁️'}</div>
+            </div>
+          </button>
+
+          {/* Mobile Summary Overlay */}
+          {showMobileSummary && (
+            <div className="mobileSummaryOverlay" onClick={() => setShowMobileSummary(false)}>
+              <div className="mobileSummaryPanel" onClick={(e) => e.stopPropagation()}>
+                <div className="mobileSummaryHeader">
+                  <h3>Your Selections</h3>
+                  <button className="mobileSummaryClose" onClick={() => setShowMobileSummary(false)}>✕</button>
+                </div>
+                <div className="mobileSummaryBody">
+                  {Array.from(selected).map((id) => {
+                    const p = products.find((x) => x.id === id);
+                    if (!p) return null;
+                    return (
+                      <div key={id} className="mobileSummaryItem">
+                        <div>
+                          <div className="mobileSummaryItemTitle">{p.icon} {p.title}</div>
+                          <div className="mobileSummaryItemPrice">{money(p.price)}</div>
+                        </div>
+                        <button className="mobileSummaryItemRemove" onClick={() => toggle(p.id)}>Remove</button>
+                      </div>
+                    );
+                  })}
+                  <div className="mobileSummaryTotal">
+                    <span>Total Investment</span>
+                    <span>{money(total)}</span>
+                  </div>
+                </div>
+                <div className="mobileSummaryFooter">
+                  <button className="btn primary" onClick={() => { copy(customerMenuUrl); setShowMobileSummary(false); }}>📋 Copy Link</button>
+                  <button className="btn success" onClick={() => { emailSelections(); setShowMobileSummary(false); }}>✉️ Email</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </>
   );
 }
