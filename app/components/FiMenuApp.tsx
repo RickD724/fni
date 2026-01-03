@@ -344,9 +344,14 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
               <h3>📤 Share Your Selections</h3>
               <p>Send this link to your advisor to review your choices together.</p>
               <div className="shareRow">
-                <input className="shareInput" readOnly value={customerMenuUrl} onFocus={(e) => e.currentTarget.select()} />
-                <button className="btn primary shareBtn" onClick={() => copy(customerMenuUrl)}>Copy Link</button>
-                <button className="btn success shareBtn" onClick={emailSelections}>Email</button>
+                <div className="shareInputGroup">
+                  <input className="shareInput" readOnly value={customerMenuUrl} onFocus={(e) => e.currentTarget.select()} />
+                </div>
+                <div className="shareActions">
+                  <button className="btn shareBtn" onClick={() => copy(customerMenuUrl)}>📋 Copy Link</button>
+                  <button className="btn shareBtn success" onClick={emailSelections}>✉️ Email</button>
+                  <button className="btn shareBtn secondary" onClick={() => window.print()}>🖨️ Print</button>
+                </div>
               </div>
             </div>
 
@@ -470,9 +475,13 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
               <h3>📤 Customer Link</h3>
               <p>Share this link with customers to view your product menu</p>
               <div className="shareRow">
-                <input className="shareInput" readOnly value={adminShareUrl} onFocus={(e) => e.currentTarget.select()} />
-                <button className="btn primary shareBtn" onClick={() => copy(adminShareUrl)}>Copy Link</button>
-                <a className="btn success shareBtn" href="/customer">Preview</a>
+                <div className="shareInputGroup">
+                  <input className="shareInput" readOnly value={adminShareUrl} onFocus={(e) => e.currentTarget.select()} />
+                </div>
+                <div className="shareActions">
+                  <button className="btn shareBtn" onClick={() => copy(adminShareUrl)}>📋 Copy Link</button>
+                  <a className="btn shareBtn success" href="/customer">👁️ Preview</a>
+                </div>
               </div>
             </div>
 
