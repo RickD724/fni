@@ -88,21 +88,38 @@ const DEFAULT_PRODUCTS: Product[] = [
   },
 ];
 
-// URL-safe base64 helpers (handles unicode)
-function b64uEncode(obj: unknown): string {
+// Compressed URL encoding - much shorter URLs!
+function compressAndEncode(obj: unknown): string {
   const json = JSON.stringify(obj);
-  const utf8 = encodeURIComponent(json);
-  const b64 = btoa(utf8);
+  // Use shorter field names to reduce size
+  const compressed = json
+    .replace(/"id":/g, '"i":')
+    .replace(/"icon":/g, '"c":')
+    .replace(/"title":/g, '"t":')
+    .replace(/"subtitle":/g, '"s":')
+    .replace(/"description":/g, '"d":')
+    .replace(/"price":/g, '"p":')
+    .replace(/"link":/g, '"l":');
+  
+  const b64 = btoa(encodeURIComponent(compressed));
   return b64.replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
 }
 
-function b64uDecode<T>(str: string): T | null {
+function decompressAndDecode<T>(str: string): T | null {
   try {
     let s = str.replaceAll("-", "+").replaceAll("_", "/");
     const pad = s.length % 4;
     if (pad) s += "=".repeat(4 - pad);
-    const utf8 = atob(s);
-    const json = decodeURIComponent(utf8);
+    const compressed = decodeURIComponent(atob(s));
+    // Restore original field names
+    const json = compressed
+      .replace(/"i":/g, '"id":')
+      .replace(/"c":/g, '"icon":')
+      .replace(/"t":/g, '"title":')
+      .replace(/"s":/g, '"subtitle":')
+      .replace(/"d":/g, '"description":')
+      .replace(/"p":/g, '"price":')
+      .replace(/"l":/g, '"link":');
     return JSON.parse(json) as T;
   } catch {
     return null;
@@ -163,7 +180,7 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
     let nextProducts: Product[] | null = null;
 
     if (urlProducts) {
-      const decoded = b64uDecode<Product[]>(urlProducts);
+      const decoded = decompressAndDecode<Product[]>(urlProducts);
       if (decoded && Array.isArray(decoded) && decoded.length) {
         nextProducts = decoded.map((p) => ({
           id: String(p.id ?? "product_" + crypto.randomUUID()),
@@ -190,7 +207,7 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
     if (nextProducts) setProducts(nextProducts);
 
     if (urlSelections) {
-      const decodedSel = b64uDecode<string[]>(urlSelections);
+      const decodedSel = decompressAndDecode<string[]>(urlSelections);
       if (decodedSel && Array.isArray(decodedSel)) {
         setSelected(new Set(decodedSel.map(String)));
       }
@@ -209,8 +226,8 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
     return window.location.origin + "/customer";
   }, []);
 
-  const productsToken = useMemo(() => b64uEncode(products), [products]);
-  const selectionsToken = useMemo(() => b64uEncode(Array.from(selected)), [selected]);
+  const productsToken = useMemo(() => compressAndEncode(products), [products]);
+  const selectionsToken = useMemo(() => compressAndEncode(Array.from(selected)), [selected]);
 
   const customerMenuUrl = useMemo(() => {
     if (!customerBaseUrl) return "";
