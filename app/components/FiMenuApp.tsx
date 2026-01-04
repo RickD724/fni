@@ -136,10 +136,10 @@ const DEFAULT_PACKAGES: Package[] = [
   },
 ];
 
-// Compressed URL encoding - much shorter URLs!
+// Enhanced URL encoding - creates SHORT lowercase URLs
 function compressAndEncode(obj: unknown): string {
   const json = JSON.stringify(obj);
-  // Use shorter field names to reduce size
+  // More aggressive field name compression
   const compressed = json
     .replace(/"id":/g, '"i":')
     .replace(/"icon":/g, '"c":')
@@ -147,17 +147,31 @@ function compressAndEncode(obj: unknown): string {
     .replace(/"subtitle":/g, '"s":')
     .replace(/"description":/g, '"d":')
     .replace(/"price":/g, '"p":')
-    .replace(/"link":/g, '"l":');
+    .replace(/"link":/g, '"l":')
+    // Remove unnecessary whitespace
+    .replace(/\s+/g, ' ')
+    .trim();
   
-  const b64 = btoa(encodeURIComponent(compressed));
-  return b64.replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+  // Convert to base64 and make URL-safe and lowercase
+  const b64 = btoa(encodeURIComponent(compressed))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '')
+    .toLowerCase(); // All lowercase!
+  
+  return b64;
 }
 
 function decompressAndDecode<T>(str: string): T | null {
   try {
-    let s = str.replaceAll("-", "+").replaceAll("_", "/");
+    // Handle lowercase input
+    let s = str
+      .replace(/-/g, '+')
+      .replace(/_/g, '/');
+    
     const pad = s.length % 4;
-    if (pad) s += "=".repeat(4 - pad);
+    if (pad) s += '='.repeat(4 - pad);
+    
     const compressed = decodeURIComponent(atob(s));
     // Restore original field names
     const json = compressed
@@ -198,6 +212,7 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
   const [products, setProducts] = useState<Product[]>(DEFAULT_PRODUCTS);
   const [packages, setPackages] = useState<Package[]>(DEFAULT_PACKAGES);
   const [viewMode, setViewMode] = useState<'products' | 'packages'>('products');
+  const [showPackageToggleToCustomers, setShowPackageToggleToCustomers] = useState(true);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<string | null>(null);
   const [showMobileSummary, setShowMobileSummary] = useState(false);
@@ -281,6 +296,12 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
       } catch {}
     }
 
+    // Load customer toggle visibility setting
+    const savedToggleSetting = window.localStorage.getItem("fi_show_package_toggle");
+    if (savedToggleSetting !== null) {
+      setShowPackageToggleToCustomers(savedToggleSetting === "true");
+    }
+
     if (urlSelections) {
       const decodedSel = decompressAndDecode<string[]>(urlSelections);
       if (decodedSel && Array.isArray(decodedSel)) {
@@ -302,6 +323,13 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
     if (!isAdmin) return;
     window.localStorage.setItem("fi_packages_v1", JSON.stringify(packages));
   }, [packages, isAdmin]);
+
+  // Save customer toggle visibility setting
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!isAdmin) return;
+    window.localStorage.setItem("fi_show_package_toggle", String(showPackageToggleToCustomers));
+  }, [showPackageToggleToCustomers, isAdmin]);
 
   const customerBaseUrl = useMemo(() => {
     if (typeof window === "undefined") return "";
@@ -443,21 +471,23 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
                 Choose from our comprehensive suite of protection products designed to safeguard your investment. Select the coverage that matches your needs, and share your personalized package with your advisor for seamless processing.
               </p>
               
-              {/* Customer View Mode Toggle */}
-              <div className="customerViewToggle">
-                <button 
-                  className={`customerViewBtn ${viewMode === 'packages' ? 'active' : ''}`}
-                  onClick={() => setViewMode('packages')}
-                >
-                  🎁 Package Plans
-                </button>
-                <button 
-                  className={`customerViewBtn ${viewMode === 'products' ? 'active' : ''}`}
-                  onClick={() => setViewMode('products')}
-                >
-                  📦 Individual Products
-                </button>
-              </div>
+              {/* Customer View Mode Toggle - only show if enabled */}
+              {showPackageToggleToCustomers && (
+                <div className="customerViewToggle">
+                  <button 
+                    className={`customerViewBtn ${viewMode === 'packages' ? 'active' : ''}`}
+                    onClick={() => setViewMode('packages')}
+                  >
+                    🎁 Package Plans
+                  </button>
+                  <button 
+                    className={`customerViewBtn ${viewMode === 'products' ? 'active' : ''}`}
+                    onClick={() => setViewMode('products')}
+                  >
+                    📦 Individual Products
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="share">
@@ -658,6 +688,20 @@ export default function FiMenuApp({ mode }: { mode: Mode }) {
                 <div className="adminShareLeft">
                   <h3>📤 Customer Link</h3>
                   <p>Share this link with customers to view your product menu</p>
+                  
+                  {/* Control customer toggle visibility */}
+                  <div style={{ marginTop: 'var(--spacing-md)', display: 'flex', alignItems: 'center', gap: 'var(--spacing-sm)' }}>
+                    <input 
+                      type="checkbox" 
+                      id="showPackageToggle"
+                      checked={showPackageToggleToCustomers}
+                      onChange={(e) => setShowPackageToggleToCustomers(e.target.checked)}
+                      style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                    />
+                    <label htmlFor="showPackageToggle" style={{ cursor: 'pointer', fontSize: '14px' }}>
+                      Allow customers to toggle between Packages and Products
+                    </label>
+                  </div>
                 </div>
                 <div className="adminShareActions">
                   <input className="adminShareInput" readOnly value={adminShareUrl} onFocus={(e) => e.currentTarget.select()} />
